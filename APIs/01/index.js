@@ -24,6 +24,15 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+
+app.get("/api", function(req, res) {
+  const utc = new Date();
+
+  res.json({
+    unix: Date.parse(utc),
+    utc: utc.toUTCString()
+  })
+});
 // api/1451001600000
 // api/2015-12-25
 app.get("/api/:data", function(req, res) {
@@ -43,7 +52,7 @@ app.get("/api/:data", function(req, res) {
   }
   res.json({
     unix: Date.parse(utc),
-    utc: utc.toString()
+    utc: utc.toUTCString()
   })
 });
 
@@ -52,3 +61,4 @@ app.get("/api/:data", function(req, res) {
 var listener = app.listen(process.env.PORT || 3000, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
+
