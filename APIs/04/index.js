@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
 const taskSchema = new mongoose.Schema({
   description: { type: String, required: true },
   duration: { type: Number, required: true },
-  date: { type: Date, required: true }
+  date: { type: Date, required: true, default: Date.now }
 })
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true },
@@ -35,18 +35,19 @@ const findUsers = async (res) => {
 };
 
 
-app.get("/api/demo", (req, res) => {
-  findUsers(res)
+// app.get("/api/demo", (req, res) => {
+//   findUsers(res)
 
-  // res.json({
-  //   demo: "demo"
-  // })
-})
+//   // res.json({
+//   //   demo: "demo"
+//   // })
+// })
 
 app.post("/api/users", (req, res) => {
+  console.log("=> POST /api/users")
   const user = new User({
     username: req.body.username,
-    count: 1,
+    // count: 1,
     log: []
   })
   user.save()
@@ -58,6 +59,7 @@ app.post("/api/users", (req, res) => {
 })
 
 app.get("/api/users", (req, res) => {
+  console.log("=> /api/users")
   findUsers(res)
   // [{"_id":"61204ee9f5860e05a3652f11","username":"fcc_test_16295073016","__v":0},{"_id":"61206b40f5860e05a3652f21","username":"tejpaulsingh","__v":0},{"_id":"6120737df5860e05a3652f23","username":"hitesh","__v":0},{"_id":"6120ae24f5860e05a3652f32","username":"asd","__v":0}]
 })
@@ -90,10 +92,16 @@ const addTask = async (res, id, description, duration, date) => {
 
 
 app.post("/api/users/:id/exercises", (req, res) => {
+  console.log("=> POST /api/users/:id/exercises")
   const id = req.params.id
   const {description, duration, date} = req.body
-  // console.log("date", date)
-  addTask(res, id, description, duration, new Date(date))
+  console.log("date", date)
+  let newDate = new Date(date)
+  if (newDate == "Invalid Date") {
+    newDate = new Date()
+  }
+  console.log("newDate", newDate)
+  addTask(res, id, description, duration, newDate)
   
 })
 
@@ -102,10 +110,10 @@ const aboutUser = (user, query) => {
   let count = 0
   for (const elem of user.log) {
     // console.log("* from", query.from, "elem.data", elem.date, query.from <= elem.date)
-    if (query.from !== undefined && query.from > elem.date) {
+    if ((query.from !== undefined || query.from != 'Invalid Date') && query.from > elem.date) {
       continue
     }
-    if (query.to !== undefined && query.to < elem.date) {
+    if ((query.to !== undefined || query.to != 'Invalid Date') && query.to < elem.date) {
       continue
     }
 
@@ -135,7 +143,8 @@ const findUser = async (res, id, query) => {
 };
 
 app.get("/api/users/:id/logs", (req, res) => {
-  // console.log(req.query)
+  console.log("=> /api/users/:id/logs")
+  console.log("req.query", req.query)
   const query = {}
   for (key of ["from", "to"]) {
     const value = req.query[key]
@@ -153,3 +162,4 @@ app.get("/api/users/:id/logs", (req, res) => {
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
 })
+
